@@ -1,7 +1,7 @@
 import React from 'react';
 import './ProjectCard.css';
 
-const ProjectCard = ({ project, onCompile }) => {
+const ProjectCard = ({ project, onCompile, onDelete }) => {
   const downloadQR = () => {
     try {
       const link = document.createElement('a');
@@ -27,6 +27,10 @@ const ProjectCard = ({ project, onCompile }) => {
     }
   };
 
+  const handleDelete = () => {
+    onDelete(project.id, project.name);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('th-TH', {
@@ -46,9 +50,16 @@ const ProjectCard = ({ project, onCompile }) => {
     <div className="project-card">
       <div className="project-header">
         <h3 title={project.name}>{project.name}</h3>
-        <span className="media-count">
-          {totalFiles} ไฟล์
-        </span>
+        <div className="project-header-actions">
+          <span className="media-count">{totalFiles} ไฟล์</span>
+          <button 
+            className="btn btn-danger btn-delete"
+            onClick={handleDelete}
+            title="ลบโปรเจ็กต์"
+          >
+            🗑️
+          </button>
+        </div>
       </div>
       
       <div className="project-meta">
