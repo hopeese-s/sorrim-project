@@ -96,28 +96,25 @@ const GuestUpload = () => {
     return <div className="loading"><div className="loading-spinner"></div><p>กำลังโหลด...</p></div>;
   }
 
-  if (project.error) {
-    return (
-      <div className="guest-upload-container">
-        <div className="upload-card error-card">
-          <h2>❌ ไม่พบโปรเจ็กต์</h2>
-          <p>ลิงก์นี้อาจไม่ถูกต้องหรือโปรเจ็กต์ถูกลบไปแล้ว</p>
+ if (project?.error) {
+  return (
+    <div className="guest-upload-container">
+      <div className="upload-card error-card">
+        <h2>❌ ไม่พบโปรเจ็กต์</h2>
+        <p>{error || 'ลิงก์นี้อาจไม่ถูกต้องหรือโปรเจ็กต์ถูกลบไปแล้ว'}</p>
+        <div className="error-details">
+          <small>Project ID: {projectId}</small>
         </div>
+        <button 
+          onClick={() => window.location.href = '/'} 
+          className="btn btn-primary"
+        >
+          กลับหน้าหลัก
+        </button>
       </div>
-    );
-  }
-
-  if (uploadSuccess) {
-    return (
-      <div className="guest-upload-container">
-        <div className="upload-card success-card">
-          <h2>🎉 อัพโหลดสำเร็จ!</h2>
-          <p>ขอบคุณที่ร่วมแชร์ความทรงจำในงาน "{project.name}"</p>
-          <button onClick={() => window.location.reload()} className="btn btn-primary">อัพโหลดอีกครั้ง</button>
-        </div>
-      </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="guest-upload-container">
@@ -174,4 +171,5 @@ const GuestUpload = () => {
 };
 
 export default GuestUpload;
+
 
