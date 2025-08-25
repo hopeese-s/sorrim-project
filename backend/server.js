@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+const path = require('path');
 const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
@@ -20,20 +21,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Middleware - API เท่านั้น
+// ตรวจสอบ Cloudinary
+if (!process.env.CLOUDINARY_CLOUD_NAME) {
+  console.error('❌ Cloudinary configuration missing!');
+  process.exit(1);
+}
+
+// Middleware
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://event-media-frontend.onrender.com'
+    'https://event-media-frontend.onrender.com',
+    'https://sorrim-project-backend.onrender.com'
   ],
   credentials: true
 }));
 
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
-
-// ลบบรรทัดนี้ออก - ไม่ serve static files
-// app.use(express.static(buildPath)); 
 
 // MongoDB Connection
 const connectDB = async () => {
@@ -85,15 +90,23 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'event-media',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mov'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mov', 'avi'],
     resource_type: 'auto',
-    transformation: [{ quality: 'auto:good', fetch_format: 'auto' }]
+    transformation: [
+      {
+        quality: 'auto:good',
+        fetch_format: 'auto'
+      }
+    ]
   }
 });
 
 const upload = multer({ 
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 }
+  limits: { 
+    fileSize: 100 * 1024 * 1024,
+    fieldSize: 50 * 1024 * 1024
+  }
 });
 
 // JWT Middleware
@@ -107,6 +120,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
+      console.error('JWT Error:', err);
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     req.user = user;
@@ -114,41 +128,31 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// 🚀 ROOT ROUTE - API Info เท่านั้น
-app.get('/', (req, res) => {
-  res.json({
-    message: '🚀 Event Media Collector - Backend API',
-    version: '1.0.0',
-    status: 'running',
-    services: {
-      frontend: 'https://event-media-frontend.onrender.com',
-      backend: 'https://sorrim-project-backend.onrender.com'
-    },
-    endpoints: {
-      health: 'GET /api/health',
-      register: 'POST /api/auth/register',
-      login: 'POST /api/auth/login',
-      verify: 'GET /api/auth/verify',
-      projects: 'GET /api/projects',
-      createProject: 'POST /api/projects',
-      getProject: 'GET /api/projects/:id',
-      latestProject: 'GET /api/projects/latest',
-      upload: 'POST /api/upload',
-      compile: 'POST /api/projects/:id/compile'
-    },
-    documentation: 'This is a REST API backend for Event Media Collector'
-  });
-});
-
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK',
-    service: 'Event Media Collector API',
+    service: 'backend',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    env: process.env.NODE_ENV,
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     cloudinary: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'missing'
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: '🚀 Event Media Collector API',
+    version: '1.0.0',
+    frontend: 'https://event-media-frontend.onrender.com',
+    backend: 'https://sorrim-project-backend.onrender.com',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/*',
+      projects: '/api/projects',
+      upload: '/api/upload'
+    }
   });
 });
 
@@ -215,6 +219,7 @@ app.get('/api/auth/verify', authenticateToken, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ user: { id: user._id, email: user.email, name: user.name } });
   } catch (error) {
+    console.error('Verify error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการตรวจสอบ token' });
   }
 });
@@ -228,7 +233,8 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
     }
     
     const projectId = uuidv4();
-    const qrData = `https://event-media-frontend.onrender.com/guest/${projectId}`;
+    const frontendUrl = 'https://event-media-frontend.onrender.com';
+    const qrData = `${frontendUrl}/guest/${projectId}`;
     
     const qrCode = await QRCode.toDataURL(qrData, {
       width: 400,
@@ -259,6 +265,7 @@ app.get('/api/projects', authenticateToken, async (req, res) => {
     const projects = await Project.find({ userId: req.user.userId }).sort({ createdAt: -1 });
     res.json(projects);
   } catch (error) {
+    console.error('Get projects error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรเจ็กต์' });
   }
 });
@@ -275,6 +282,7 @@ app.get('/api/projects/latest', async (req, res) => {
       createdAt: latestProject.createdAt 
     });
   } catch (error) {
+    console.error('Get latest project error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรเจ็กต์ล่าสุด' });
   }
 });
@@ -285,21 +293,29 @@ app.get('/api/projects/:id', async (req, res) => {
     if (!project) return res.status(404).json({ error: 'ไม่พบโปรเจ็กต์' });
     res.json(project);
   } catch (error) {
+    console.error('Get project error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรเจ็กต์' });
   }
 });
 
-// Media Upload
+// Media Upload Route
 app.post('/api/upload', upload.single('media'), async (req, res) => {
   try {
     const { projectId, guestName } = req.body;
     const file = req.file;
     
-    if (!file) return res.status(400).json({ error: 'ไม่มีไฟล์ที่อัพโหลด' });
-    if (!guestName?.trim()) return res.status(400).json({ error: 'กรุณาใส่ชื่อ' });
+    if (!file) {
+      return res.status(400).json({ error: 'ไม่มีไฟล์ที่อัพโหลด' });
+    }
+    
+    if (!guestName?.trim()) {
+      return res.status(400).json({ error: 'กรุณาใส่ชื่อ' });
+    }
     
     const project = await Project.findOne({ id: projectId });
-    if (!project) return res.status(404).json({ error: 'ไม่พบโปรเจ็กต์' });
+    if (!project) {
+      return res.status(404).json({ error: 'ไม่พบโปรเจ็กต์' });
+    }
     
     const mediaFile = {
       filename: file.filename || file.originalname,
@@ -313,17 +329,25 @@ app.post('/api/upload', upload.single('media'), async (req, res) => {
     project.mediaFiles.push(mediaFile);
     await project.save();
     
+    console.log(`✅ Uploaded file: ${file.originalname} to project ${projectId}`);
     res.json({ success: true, file: mediaFile });
   } catch (error) {
+    console.error('Upload error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์' });
   }
 });
 
-// Compile Video
 app.post('/api/projects/:id/compile', authenticateToken, async (req, res) => {
   try {
-    const project = await Project.findOne({ id: req.params.id, userId: req.user.userId });
-    if (!project) return res.status(404).json({ error: 'ไม่พบโปรเจ็กต์' });
+    const project = await Project.findOne({ 
+      id: req.params.id, 
+      userId: req.user.userId 
+    });
+    
+    if (!project) {
+      return res.status(404).json({ error: 'ไม่พบโปรเจ็กต์' });
+    }
+
     if (project.mediaFiles.length === 0) {
       return res.status(400).json({ error: 'ไม่มีไฟล์สื่อให้รวม' });
     }
@@ -331,28 +355,22 @@ app.post('/api/projects/:id/compile', authenticateToken, async (req, res) => {
     project.finalVideo = `${project.id}/compiled.mp4`;
     await project.save();
     
-    res.json({ success: true, message: 'เริ่มการประมวลผลคลิปแล้ว!' });
+    console.log(`✅ Compiled project: ${project.name} (${project.mediaFiles.length} files)`);
+    res.json({ 
+      success: true, 
+      message: 'เริ่มการประมวลผลคลิปแล้ว กรุณารอสักครู่...' 
+    });
   } catch (error) {
+    console.error('Compile error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการรวมคลิป' });
   }
 });
 
-// ลบ catch-all route นี้ออก - ไม่ serve React
-// app.get('*', (req, res) => { ... });
-
-// 404 API handler
+// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
     error: 'API endpoint not found',
-    message: 'This is a REST API backend. For the web interface, visit: https://event-media-frontend.onrender.com',
-    availableEndpoints: [
-      'GET /',
-      'GET /api/health', 
-      'POST /api/auth/login',
-      'POST /api/auth/register',
-      'GET /api/projects',
-      'POST /api/upload'
-    ]
+    availableEndpoints: ['/api/health', '/api/auth/*', '/api/projects', '/api/upload']
   });
 });
 
@@ -360,7 +378,8 @@ app.use('*', (req, res) => {
 app.use((error, req, res, next) => {
   console.error('❌ Server Error:', error);
   res.status(500).json({ 
-    error: 'เกิดข้อผิดพลาดในเซิร์ฟเวอร์'
+    error: 'เกิดข้อผิดพลาดในเซิร์ฟเวอร์',
+    details: process.env.NODE_ENV === 'development' ? error.message : undefined
   });
 });
 
@@ -369,4 +388,5 @@ app.listen(PORT, () => {
   console.log(`📱 Environment: ${process.env.NODE_ENV}`);
   console.log(`🌍 Frontend URL: https://event-media-frontend.onrender.com`);
   console.log(`☁️ Cloudinary: ${process.env.CLOUDINARY_CLOUD_NAME}`);
+  console.log(`🗃️ MongoDB: Connected`);
 });
