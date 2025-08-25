@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css'; // ใช้ CSS เดียวกัน
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const Register = ({ setUser }) => {
   const [formData, setFormData] = useState({
@@ -128,3 +128,4 @@ const Register = ({ setUser }) => {
 };
 
 export default Register;
+
