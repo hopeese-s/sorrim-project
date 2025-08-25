@@ -25,6 +25,7 @@ const PhotographerDashboard = ({ user }) => {
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
+        console.log('✅ Projects loaded:', data.length, 'projects');
       } else {
         console.error('Failed to fetch projects');
         setProjects([]);
@@ -43,10 +44,9 @@ const PhotographerDashboard = ({ user }) => {
 
     setLoading(true);
     
-    // Add delay for smoother animation
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
     try {
+      console.log('📝 Creating project:', newProjectName);
+      
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/projects`, {
         method: 'POST',
@@ -59,22 +59,74 @@ const PhotographerDashboard = ({ user }) => {
       
       if (response.ok) {
         const newProject = await response.json();
+        console.log('✅ Project created:', newProject);
         setProjects([newProject, ...projects]);
         setNewProjectName('');
         setShowNewProjectModal(false);
+        alert(`สร้างโปรเจ็กต์ "${newProject.name}" สำเร็จ!`);
       } else {
         const errorData = await response.json();
+        console.error('❌ Create project error:', errorData);
         alert(errorData.error || 'เกิดข้อผิดพลาดในการสร้างโปรเจ็กต์');
       }
     } catch (error) {
-      console.error('Error creating project:', error);
+      console.error('❌ Create project error:', error);
       alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     }
     setLoading(false);
   };
 
+  // ✅ ฟังก์ชัน deleteProject ที่ถูกต้อง
+  const deleteProject = async (projectId, projectName) => {
+    console.log('🗑️ Delete project called:', projectId, projectName);
+    
+    const confirmDelete = window.confirm(
+      `คุณแน่ใจหรือไม่ที่จะลบโปรเจ็กต์ "${projectName}"?\n\n⚠️ การลบจะไม่สามารถยกเลิกได้ และไฟล์ทั้งหมดในโปรเจ็กต์จะหายไปด้วย`
+    );
+    
+    if (!confirmDelete) {
+      console.log('❌ User cancelled deletion');
+      return;
+    }
+
+    try {
+      console.log('🗑️ Deleting project:', projectId);
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Delete success:', result);
+        
+        // อัพเดท state ทันทีเพื่อให้ UI เปลี่ยนแปลงทันที
+        setProjects(prevProjects => {
+          const newProjects = prevProjects.filter(p => p.id !== projectId);
+          console.log('Updated projects count:', newProjects.length);
+          return newProjects;
+        });
+        
+        alert(`ลบโปรเจ็กต์ "${projectName}" สำเร็จแล้ว`);
+      } else {
+        const errorData = await response.json();
+        console.error('❌ Delete error:', errorData);
+        alert(errorData.error || 'เกิดข้อผิดพลาดในการลบโปรเจ็กต์');
+      }
+    } catch (error) {
+      console.error('❌ Delete project error:', error);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    }
+  };
+
   const compileVideo = async (projectId) => {
     try {
+      console.log('🎬 Compiling video for project:', projectId);
+      
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/compile`, {
         method: 'POST',
@@ -83,21 +135,25 @@ const PhotographerDashboard = ({ user }) => {
       
       if (response.ok) {
         const result = await response.json();
+        console.log('✅ Compile success:', result);
         alert('เริ่มการประมวลผลคลิปแล้ว!');
         fetchProjects(); // Refresh projects
       } else {
         const errorData = await response.json();
+        console.error('❌ Compile error:', errorData);
         alert(errorData.error || 'เกิดข้อผิดพลาดในการรวมคลิป');
       }
     } catch (error) {
-      console.error('Error compiling video:', error);
+      console.error('❌ Compile video error:', error);
       alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/';
+    if (window.confirm('คุณแน่ใจหรือไม่ที่จะออกจากระบบ?')) {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+    }
   };
 
   if (pageLoading) {
@@ -114,41 +170,52 @@ const PhotographerDashboard = ({ user }) => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1>Photographer Dashboard</h1>
+        <div className="header-left">
+          <h1>📸 Photographer Dashboard</h1>
+          <p>จัดการโปรเจ็กต์และรวบรวมไฟล์สื่อ</p>
+        </div>
         <div className="header-actions">
           <button 
-            className="btn btn-primary"
+            className="btn btn-primary new-project-btn"
             onClick={() => setShowNewProjectModal(true)}
           >
-            + New Project
+            ➕ New Project
           </button>
           <div className="user-info">
-            <span>สวัสดี, {user?.name || 'User'}</span>
+            <span>สวัสดี, <strong>{user?.name || 'User'}</strong></span>
             <button 
-              className="btn btn-secondary"
+              className="btn btn-secondary logout-btn"
               onClick={handleLogout}
             >
-              ออกจากระบบ
+              🚪 ออกจากระบบ
             </button>
           </div>
         </div>
       </header>
 
-      <div className="projects-grid">
+      <div className="dashboard-content">
         {projects.length > 0 ? (
-          projects.map(project => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              onCompile={compileVideo}
-              onDelete={deleteProject} 
-            />
-          ))
+          <div className="projects-grid">
+            {projects.map(project => (
+              <ProjectCard 
+                key={project.id} 
+                project={project} 
+                onCompile={compileVideo}
+                onDelete={deleteProject}  // ✅ ส่ง deleteProject ที่ประกาศแล้ว
+              />
+            ))}
+          </div>
         ) : (
           <div className="empty-state">
             <div className="empty-icon">📸</div>
             <h3>ยังไม่มีโปรเจ็กต์</h3>
-            <p>กดปุ่ม "+ New Project" เพื่อสร้างโปรเจ็กต์แรกของคุณ</p>
+            <p>กดปุ่ม "➕ New Project" เพื่อสร้างโปรเจ็กต์แรกของคุณ</p>
+            <button 
+              className="btn btn-primary"
+              onClick={() => setShowNewProjectModal(true)}
+            >
+              สร้างโปรเจ็กต์แรก
+            </button>
           </div>
         )}
       </div>
@@ -159,7 +226,16 @@ const PhotographerDashboard = ({ user }) => {
           onClick={() => !loading && setShowNewProjectModal(false)}
         >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>สร้างโปรเจ็กต์ใหม่</h3>
+            <div className="modal-header">
+              <h3>✨ สร้างโปรเจ็กต์ใหม่</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowNewProjectModal(false)}
+                disabled={loading}
+              >
+                ❌
+              </button>
+            </div>
             <form onSubmit={createProject}>
               <div className="form-group">
                 <label>ชื่อโปรเจ็กต์:</label>
@@ -173,6 +249,7 @@ const PhotographerDashboard = ({ user }) => {
                   disabled={loading}
                   autoFocus
                 />
+                <small>สามารถใส่ได้สูงสุด 50 ตัวอักษร</small>
               </div>
               <div className="modal-actions">
                 <button 
@@ -181,14 +258,14 @@ const PhotographerDashboard = ({ user }) => {
                   onClick={() => setShowNewProjectModal(false)}
                   disabled={loading}
                 >
-                  ยกเลิก
+                  ❌ ยกเลิก
                 </button>
                 <button 
                   type="submit" 
                   className={`btn btn-create ${loading ? 'btn-loading' : ''}`}
                   disabled={loading || !newProjectName.trim()}
                 >
-                  {loading ? 'กำลังสร้าง...' : 'สร้าง'}
+                  {loading ? '⏳ กำลังสร้าง...' : '✅ สร้าง'}
                 </button>
               </div>
             </form>
@@ -200,4 +277,3 @@ const PhotographerDashboard = ({ user }) => {
 };
 
 export default PhotographerDashboard;
-
