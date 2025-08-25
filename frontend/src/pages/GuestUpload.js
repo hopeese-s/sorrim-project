@@ -15,21 +15,35 @@ const GuestUpload = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`);
-        if (!response.ok) {
-          throw new Error('ไม่พบโปรเจ็กต์');
-        }
-        const data = await response.json();
-        setProject(data);
-      } catch (err) {
-        setError(err.message);
-        setProject({ name: 'Error', error: true });
+  const fetchProject = async () => {
+    try {
+      console.log(`🔍 Fetching project: ${projectId}`); // Debug log
+      
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'ไม่พบโปรเจ็กต์');
       }
-    };
+      
+      const data = await response.json();
+      console.log(`✅ Project loaded:`, data); // Debug log
+      setProject(data);
+    } catch (err) {
+      console.error('❌ Fetch project error:', err);
+      setError(err.message);
+      setProject({ 
+        name: 'ไม่พบโปรเจ็กต์', 
+        error: true,
+        errorMessage: err.message 
+      });
+    }
+  };
+  
+  if (projectId) {
     fetchProject();
-  }, [projectId]);
+  }
+}, [projectId]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -160,3 +174,4 @@ const GuestUpload = () => {
 };
 
 export default GuestUpload;
+
