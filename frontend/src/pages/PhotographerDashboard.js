@@ -141,6 +141,7 @@ const PhotographerDashboard = ({ user }) => {
               key={project.id} 
               project={project} 
               onCompile={compileVideo}
+              onDelete={deleteProject} 
             />
           ))
         ) : (
@@ -199,3 +200,4 @@ const PhotographerDashboard = ({ user }) => {
 };
 
 export default PhotographerDashboard;
+
