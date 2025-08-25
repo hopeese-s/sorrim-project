@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://sorrim-project-backend.onrender.com';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -14,13 +14,10 @@ const Home = () => {
     setGuestError('');
     
     try {
-      // ค้นหาโปรเจ็กต์ล่าสุด
       const response = await fetch(`${API_BASE_URL}/api/projects/latest`);
       
       if (response.ok) {
         const latestProject = await response.json();
-        
-        // Simulate scanning QR and redirect to latest project
         setTimeout(() => {
           navigate(`/guest/${latestProject.id}`);
         }, 1500);
