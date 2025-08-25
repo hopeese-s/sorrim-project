@@ -14,27 +14,31 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Configure Cloudinary - บังคับใช้ Cloud เท่านั้น
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ตรวจสอบว่า Cloudinary config ครบหรือไม่
-if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+// ตรวจสอบ Cloudinary
+if (!process.env.CLOUDINARY_CLOUD_NAME) {
   console.error('❌ Cloudinary configuration missing!');
   process.exit(1);
 }
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://event-media-frontend.onrender.com',
+    'https://sorrim-project-backend.onrender.com'
+  ],
+  credentials: true
+}));
+
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
-
-// Serve React build
-const buildPath = path.join(__dirname, '../frontend/build');
-app.use(express.static(buildPath));
 
 // MongoDB Connection
 const connectDB = async () => {
@@ -81,7 +85,7 @@ const projectSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 const Project = mongoose.model('Project', projectSchema);
 
-// Cloudinary Storage - Cloud เท่านั้น
+// Cloudinary Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -100,12 +104,10 @@ const storage = new CloudinaryStorage({
 const upload = multer({ 
   storage,
   limits: { 
-    fileSize: 100 * 1024 * 1024,  // 100MB
-    fieldSize: 50 * 1024 * 1024   // 50MB
+    fileSize: 100 * 1024 * 1024,
+    fieldSize: 50 * 1024 * 1024
   }
 });
-
-console.log('☁️ Using Cloudinary storage only');
 
 // JWT Middleware
 const authenticateToken = (req, res, next) => {
@@ -129,11 +131,28 @@ const authenticateToken = (req, res, next) => {
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ 
-    status: 'OK', 
+    status: 'OK',
+    service: 'backend',
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     cloudinary: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'missing'
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: '🚀 Event Media Collector API',
+    version: '1.0.0',
+    frontend: 'https://event-media-frontend.onrender.com',
+    backend: 'https://sorrim-project-backend.onrender.com',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/*',
+      projects: '/api/projects',
+      upload: '/api/upload'
+    }
   });
 });
 
@@ -214,8 +233,8 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
     }
     
     const projectId = uuidv4();
-    const baseUrl = process.env.FRONTEND_URL || `https://${req.get('host')}`;
-    const qrData = `${baseUrl}/guest/${projectId}`;
+    const frontendUrl = 'https://event-media-frontend.onrender.com';
+    const qrData = `${frontendUrl}/guest/${projectId}`;
     
     const qrCode = await QRCode.toDataURL(qrData, {
       width: 400,
@@ -279,7 +298,7 @@ app.get('/api/projects/:id', async (req, res) => {
   }
 });
 
-// Media Upload Route - Cloudinary เท่านั้น
+// Media Upload Route
 app.post('/api/upload', upload.single('media'), async (req, res) => {
   try {
     const { projectId, guestName } = req.body;
@@ -347,17 +366,12 @@ app.post('/api/projects/:id/compile', authenticateToken, async (req, res) => {
   }
 });
 
-// React App - ต้องไว้ท้ายสุด
-app.get('*', (req, res) => {
-  const indexPath = path.join(buildPath, 'index.html');
-  if (require('fs').existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).json({ 
-      error: 'Frontend build not found',
-      hint: 'Please run "cd frontend && npm run build" first'
-    });
-  }
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ 
+    error: 'API endpoint not found',
+    availableEndpoints: ['/api/health', '/api/auth/*', '/api/projects', '/api/upload']
+  });
 });
 
 // Error handling
@@ -370,9 +384,9 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Backend API running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🌍 Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`🌍 Frontend URL: https://event-media-frontend.onrender.com`);
   console.log(`☁️ Cloudinary: ${process.env.CLOUDINARY_CLOUD_NAME}`);
-  console.log(`🗃️ MongoDB: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting...'}`);
+  console.log(`🗃️ MongoDB: Connected`);
 });
