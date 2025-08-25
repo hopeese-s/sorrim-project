@@ -7,7 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import './App.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://sorrim-project-backend.onrender.com';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -16,7 +16,6 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Verify token and get user info
       fetch(`${API_BASE_URL}/api/auth/verify`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -39,7 +38,12 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="loading">
+        <div className="loading-spinner"></div>
+        <p>กำลังโหลด...</p>
+      </div>
+    );
   }
 
   return (
