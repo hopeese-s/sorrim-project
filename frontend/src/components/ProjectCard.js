@@ -18,7 +18,7 @@ const ProjectCard = ({ project, onCompile, onDelete }) => {
 
   const copyQRLink = async () => {
     try {
-      const qrLink = `${window.location.origin}/guest/${project.id}`;
+      const qrLink = `https://event-media-frontend.onrender.com/guest/${project.id}`;
       await navigator.clipboard.writeText(qrLink);
       alert('คัดลอกลิงก์เรียบร้อยแล้ว!');
     } catch (error) {
@@ -27,8 +27,29 @@ const ProjectCard = ({ project, onCompile, onDelete }) => {
     }
   };
 
-  const handleDelete = () => {
-    onDelete(project.id, project.name);
+  // ✅ ฟังก์ชันลบที่ทำงานจริง
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🗑️ Delete button clicked for project:', project.id);
+    
+    if (typeof onDelete !== 'function') {
+      console.error('❌ onDelete prop is not a function');
+      alert('ฟังก์ชันลบไม่พร้อมใช้งาน');
+      return;
+    }
+    
+    const confirmDelete = window.confirm(
+      `คุณแน่ใจหรือไม่ที่จะลบโปรเจ็กต์ "${project.name}"?\n\n⚠️ การลบจะไม่สามารถยกเลิกได้ และไฟล์ทั้งหมดในโปรเจ็กต์จะหายไปด้วย`
+    );
+    
+    if (confirmDelete) {
+      console.log('✅ User confirmed deletion');
+      onDelete(project.id, project.name);
+    } else {
+      console.log('❌ User cancelled deletion');
+    }
   };
 
   const formatDate = (dateString) => {
@@ -52,10 +73,13 @@ const ProjectCard = ({ project, onCompile, onDelete }) => {
         <h3 title={project.name}>{project.name}</h3>
         <div className="project-header-actions">
           <span className="media-count">{totalFiles} ไฟล์</span>
+          {/* ✅ ปุ่มลบที่ทำงานได้จริง */}
           <button 
+            type="button"
             className="btn btn-danger btn-delete"
             onClick={handleDelete}
-            title="ลบโปรเจ็กต์"
+            title={`ลบโปรเจ็กต์ "${project.name}"`}
+            aria-label={`ลบโปรเจ็กต์ ${project.name}`}
           >
             🗑️
           </button>
@@ -104,7 +128,7 @@ const ProjectCard = ({ project, onCompile, onDelete }) => {
       <div className="project-actions">
         <button 
           className="btn btn-primary compile-btn"
-          onClick={() => onCompile(project.id)}
+          onClick={() => onCompile && onCompile(project.id)}
           disabled={totalFiles === 0}
           title={totalFiles === 0 ? 'ต้องมีไฟล์อย่างน้อย 1 ไฟล์' : 'สร้างคลิปสรุปงาน'}
         >
