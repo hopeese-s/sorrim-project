@@ -265,7 +265,54 @@ apiRouter.post('/upload', upload.single('media'), async (req, res) => {
   }
 });
 
+apiRouter.delete('/projects/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`🗑️ Attempting to delete project: ${id} by user: ${req.user.userId}`);
+    
+    // ลบเฉพาะโปรเจ็กต์ของ user นี้เท่านั้น
+    const deletedProject = await Project.findOneAndDelete({ 
+      id: id, 
+      userId: req.user.userId 
+    });
+    
+    if (!deletedProject) {
+      console.log(`❌ Project not found or not owned by user: ${id}`);
+      return res.status(404).json({ error: 'ไม่พบโปรเจ็กต์หรือคุณไม่มีสิทธิ์ลบ' });
+    }
+    
+    // ลบไฟล์ใน Cloudinary ด้วย (ถ้ามี)
+    if (deletedProject.mediaFiles && deletedProject.mediaFiles.length > 0) {
+      try {
+        for (const media of deletedProject.mediaFiles) {
+          if (media.cloudinaryPublicId) {
+            await cloudinary.uploader.destroy(media.cloudinaryPublicId);
+          }
+        }
+        console.log(`🗑️ Cleaned up ${deletedProject.mediaFiles.length} media files from Cloudinary`);
+      } catch (cloudinaryError) {
+        console.error('Error cleaning up Cloudinary files:', cloudinaryError);
+        // ไม่ให้ error นี้หยุดการลบ project
+      }
+    }
+    
+    console.log(`✅ Project deleted successfully: ${deletedProject.name} (${id})`);
+    res.json({ 
+      success: true, 
+      message: 'ลบโปรเจ็กต์เรียบร้อยแล้ว',
+      deletedProject: {
+        id: deletedProject.id,
+        name: deletedProject.name
+      }
+    });
+  } catch (error) {
+    console.error('❌ Delete project error:', error);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบโปรเจ็กต์' });
+  }
+});
+
 app.use('/api', apiRouter);
 
 app.listen(PORT, () => console.log(`🚀 Backend API running on port ${PORT}`));
+
 
