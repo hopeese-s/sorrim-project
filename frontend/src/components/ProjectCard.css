@@ -449,3 +449,70 @@
   }
 }
 
+.btn-delete {
+  padding: 8px 12px;
+  font-size: 1.1rem;
+  min-width: auto;
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: linear-gradient(45deg, #c82333, #a71e2a);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.5);
+}
+
+.btn-delete:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.btn-delete:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
+}
+
+/* รับประกันว่าปุ่มคลิกได้ */
+.btn-delete {
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.project-info {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.project-name {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.project-id {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  font-family: monospace;
+}
+
+.preview h4 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.preview p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
