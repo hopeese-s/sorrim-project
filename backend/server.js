@@ -144,18 +144,78 @@ apiRouter.post('/auth/login', async (req, res) => {
 apiRouter.post('/projects', authenticateToken, async (req, res) => {
   try {
     const { name } = req.body;
-    if (!name?.trim()) return res.status(400).json({ error: 'กรุณาใส่ชื่อโปรเจ็กต์' });
+    if (!name?.trim()) {
+      return res.status(400).json({ error: 'กรุณาใส่ชื่อโปรเจ็กต์' });
+    }
     
     const projectId = uuidv4();
-    const qrData = `https://event-media-frontend.onrender.com/guest/${projectId}`;
-    const qrCode = await QRCode.toDataURL(qrData, { width: 400, margin: 2 });
+    console.log(`🆔 Creating project with ID: ${projectId}`); // Debug log
     
-    const project = new Project({ id: projectId, name, userId: req.user.userId, qrCode });
+    // ใช้ URL ที่ถูกต้อง
+    const frontendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://event-media-frontend.onrender.com' 
+      : 'http://localhost:3000';
+    
+    const qrData = `${frontendUrl}/guest/${projectId}`;
+    console.log(`🔗 QR Code URL: ${qrData}`); // Debug log
+    
+    const qrCode = await QRCode.toDataURL(qrData, {
+      width: 400,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      errorCorrectionLevel: 'M'
+    });
+    
+    const project = new Project({
+      id: projectId,
+      name: name.trim(),
+      userId: req.user.userId,
+      qrCode,
+      mediaFiles: []
+    });
+    
+    // รอให้บันทึกเสร็จสมบูรณ์
     await project.save();
+    console.log(`✅ Project saved successfully: ${project.name} (${project.id})`); // Debug log
     
-    res.status(201).json(project);
+    // ตรวจสอบว่าบันทึกจริงหรือไม่
+    const savedProject = await Project.findOne({ id: projectId });
+    if (!savedProject) {
+      throw new Error('Failed to save project to database');
+    }
+    
+    res.status(201).json(savedProject);
   } catch (error) {
+    console.error('❌ Create project error:', error);
     res.status(500).json({ error: 'เกิดข้อผิดพลาดในการสร้างโปรเจ็กต์' });
+  }
+});
+
+// แก้ไขการค้นหาโปรเจ็กต์
+apiRouter.get('/projects/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`🔍 Looking for project ID: ${id}`); // Debug log
+    
+    const project = await Project.findOne({ id: id });
+    
+    if (!project) {
+      console.log(`❌ Project not found: ${id}`); // Debug log
+      return res.status(404).json({ 
+        error: 'ไม่พบโปรเจ็กต์',
+        projectId: id,
+        message: 'โปรเจ็กต์นี้อาจถูกลบหรือไม่มีอยู่จริง'
+      });
+    }
+    
+    console.log(`✅ Project found: ${project.name} (${project.id})`); // Debug log
+    res.json(project);
+  } catch (error) {
+    console.error('❌ Get project error:', error);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดในการค้นหาโปรเจ็กต์' });
   }
 });
 
@@ -208,3 +268,4 @@ apiRouter.post('/upload', upload.single('media'), async (req, res) => {
 app.use('/api', apiRouter);
 
 app.listen(PORT, () => console.log(`🚀 Backend API running on port ${PORT}`));
+
