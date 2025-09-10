@@ -139,12 +139,14 @@ body {
 }
 .right-section {
   flex: 1.2;
-  background: url('/images/camera.jpg') center/cover;
+  background: linear-gradient(135deg, rgba(74, 144, 164, 0.7), rgba(107, 163, 208, 0.7)),
+              url('%PUBLIC_URL%/images/camera.jpg') center/cover no-repeat;
   border-radius: 0 64px 64px 0;
   min-height: 450px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
 }
 .decorative-element {
   /* ใส่ background หรือภาพกล้องตาม UI */
@@ -161,4 +163,5 @@ body {
     min-height: unset;
   }
 }
+
 
