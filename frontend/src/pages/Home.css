@@ -1,122 +1,163 @@
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-.home-root {
+
+body {
   font-family: 'Kanit', sans-serif;
+  background: #e0f7fa;
   min-height: 100vh;
-  background: #ffeef3;
 }
-.home-header {
+.home-page {
+  min-height: 100vh;
+  background: #ffeafb;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  width: 100%;
+  background: #b3e5fc;
+  padding: 32px 48px 24px 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #bfe3fc;
-  padding: 24px 48px 16px 48px;
-  border-radius: 0 0 32px 32px;
 }
-.home-logo {
-  color: #f97fab;
+.logo {
+  color: #f48fb1;
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   letter-spacing: 2px;
 }
-.home-nav-home {
-  color: #f97fab;
-  font-weight: bold;
-  font-size: 1.12rem;
-  margin: 0 24px;
+.nav {
+  color: #f48fb1;
+  font-weight: 500;
+  font-size: 1.3rem;
 }
-
-.home-auth-buttons {
-  display: flex;
-  gap: 16px;
-}
-.home-btn {
-  padding: 10px 32px;
-  border-radius: 20px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
+.auth-buttons .btn {
+  background: #ffeafb;
+  color: #f48fb1;
+  border: 2px solid #f8bbd0;
+  margin-left: 12px;
+  font-weight: 700;
+  border-radius: 22px;
+  padding: 8px 36px;
+  font-size: 1.1rem;
   transition: 0.2s;
-  font-family: inherit;
-  cursor: pointer;
 }
-.home-btn-login {
-  background: none;
-  border: 2px solid #f97fab;
-  color: #f97fab;
+.auth-buttons .btn:hover {
+  background: #fce4ec;
+  color: #ba68c8;
 }
-.home-btn-signup {
-  background: #fcdceb;
-  color: #f97fab;
-  border: 2px solid #fcdceb;
-}
-
-.home-main {
+.main-container {
+  flex: 1;
   display: flex;
-  min-height: 80vh;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
+  padding: 0 36px;
 }
-.home-left {
-  flex: 1 1 0;
+.left-section {
+  flex: 1;
+  background: #fff8fd;
+  border-radius: 64px 0 0 64px;
+  padding: 48px 0 48px 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 80px 64px 80px 100px;
 }
-.home-brand {
-  color: #f97fab;
+.brand-text {
+  color: #f48fb1;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 18px;
-  font-size: 1.3rem;
+  margin-bottom: 16px;
+  margin-left: 2px;
 }
-.home-title {
-  color: #f97fab;
-  font-size: 4.2rem;
-  font-weight: 800;
-  margin: 0;
-  line-height: 1.05;
-  margin-bottom: 38px;
-}
-.home-role-select {
-  display: flex;
-  gap: 32px;
-}
-.home-role-btn {
-  padding: 16px 48px;
-  border-radius: 32px;
-  border: none;
-  font-size: 1.5rem;
+.main-title {
+  font-size: 4rem;
+  color: #f48fb1;
   font-weight: 700;
-  margin-right: 12px;
-  transition: 0.2s;
+  line-height: 1.05;
+}
+.user-selection {
+  margin-top: 36px;
+  display: flex;
+  gap: 24px;
+}
+.user-type-card {
+  background: #b3e5fc;
+  border: none;
+  border-radius: 24px;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #f48fb1;
+  padding: 20px 48px;
   cursor: pointer;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
+  transition: 0.2s;
 }
-.home-guest-btn {
-  background: #bfe3fc;
-  color: #f97fab;
+.user-type-card.photographer-card {
+  background: #ffeafb;
+  color: #ba68c8;
+  border: 2px solid #f8bbd0;
 }
-.home-photographer-btn {
-  background: #fcdceb;
-  color: #f97fab;
+.user-type-card.guest-card:hover,
+.user-type-card.photographer-card:hover {
+  background: #e0f7fa;
 }
-
-.home-right {
-  flex: 1.1 1 0;
-  background: url('/path/to/your/camera-img.jpg') right center no-repeat;
-  background-size: cover;
-  border-radius: 180px 0 0 0;
-  margin-left: 20px;
-  min-height: 600px;
+.guest-options {
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-
-/* Responsive */
+.guest-demo-btn {
+  background: #b3e5fc;
+  color: #f48fb1;
+  font-size: 1.3rem;
+  border-radius: 18px;
+  padding: 12px 32px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.guest-demo-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.qr-info {
+  background: #ffecf6;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 1rem;
+  color: #ba68c8;
+  margin-bottom: 8px;
+}
+.guest-error {
+  background: #f8bbd0;
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.right-section {
+  flex: 1.2;
+  background: url('link_to_your_image') center/cover;
+  border-radius: 0 64px 64px 0;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.decorative-element {
+  /* ใส่ background หรือภาพกล้องตาม UI */
+  width: 100%;
+  height: 100%;
+}
 @media (max-width: 900px) {
-  .home-main {
+  .main-container {
     flex-direction: column;
+    padding: 0;
   }
-  .home-left, .home-right {
-    padding: 48px 24px;
-  }
-  .home-title {
-    font-size: 2.5rem;
+  .left-section, .right-section {
+    border-radius: 0;
+    min-height: unset;
   }
 }
