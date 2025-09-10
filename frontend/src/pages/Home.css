@@ -147,7 +147,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-}
 .decorative-element {
   /* ใส่ background หรือภาพกล้องตาม UI */
   width: 100%;
@@ -163,5 +162,6 @@ body {
     min-height: unset;
   }
 }
+
 
 
