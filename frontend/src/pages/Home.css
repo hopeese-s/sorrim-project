@@ -139,7 +139,7 @@ body {
 }
 .right-section {
   flex: 1.2;
-  background: url('link_to_your_image') center/cover;
+  background: url('/images/camera.jpg') center/cover;
   border-radius: 0 64px 64px 0;
   min-height: 450px;
   display: flex;
@@ -161,3 +161,4 @@ body {
     min-height: unset;
   }
 }
+
