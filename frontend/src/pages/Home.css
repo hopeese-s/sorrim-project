@@ -1,186 +1,137 @@
-/* ---- Override / additions for HOME page layout (paste at end of your CSS) ---- */
-
-/* Left pink panel with curved edge (uses ::after soไม่ชนกับ ::before เดิม) */
 .home-container {
-  background: linear-gradient(90deg, #ffffff 0%, #cfeeff 100%); /* subtle overall */
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: #fdeff3;
   position: relative;
-  overflow: hidden;
 }
 
-/* pale-pink left panel */
-.home-container::after {
-  content: '';
-  position: absolute;
-  z-index: 1; /* behind content (hero has z-index:2 already) */
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 56%; /* matches image proportion — adjust if needed */
-  background: #FFF6F6; /* ชมพูอ่อน */
-  border-top-right-radius: 160px;
-  border-bottom-right-radius: 160px;
-  box-shadow: inset -30px 0 50px rgba(0,0,0,0.02);
-  pointer-events: none;
-  transform-origin: left center;
-}
-
-/* Header / navbar overrides (multiple selectors to match common patterns) */
-header, .site-header, .navbar, .topbar {
-  background: #AEDEFC !important; /* ฟ้าอ่อน */
-  color: #F875AA !important;      /* โลโก้/เมนูใช้ชมพูสด */
-  border-bottom: none;
-  box-shadow: none;
-}
-
-/* logo text */
-header .logo, .site-header .logo, .brand, .logo-text {
-  color: #F875AA !important;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-/* nav links (center HOME pink) */
-header nav a, .navbar a, .topbar a {
-  color: #F875AA !important;
-  font-weight: 600;
-}
-
-/* buttons on header (Log In / Sign Up) */
-header .btn, .navbar .btn, .topbar .btn, .login-btn, .signup-btn {
-  border-radius: 28px;
-  padding: 10px 22px;
-  font-weight: 700;
-  border: 2px solid rgba(255,255,255,0.35);
-  background: transparent;
-  color: #F875AA;
-}
-
-/* give Sign Up a filled pink look if present */
-header .signup-btn, .btn-signup {
-  background: #FFDCEC; /* very soft pink fallback */
-  color: #F875AA;
-  border: 0;
-  padding: 10px 26px;
-}
-
-/* ---- Hero section styling to match image ---- */
 .hero-section {
-  text-align: left;
-  color: #F875AA; /* main heading color */
-  max-width: 58%;  /* keep on left pink panel */
-  padding-left: 6.5rem;
-  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fdeff3;
+  padding: 3rem 2rem;
   z-index: 2;
 }
 
-/* Big WHO ARE YOU? style */
-.hero-section h1 {
-  font-size: 8rem;              /* very large like image */
-  line-height: 0.9;
-  margin: 0 0 1rem 0;
-  color: #F875AA;               /* ชมพูสด */
-  -webkit-text-fill-color: #F875AA;
-  text-shadow: none;
-  background: none;
-  font-weight: 700;
-  letter-spacing: -2px;
-}
-
-/* small site name above heading */
-.hero-section .site-subtitle, .hero-section .meta {
-  display: block;
-  font-size: 1.1rem;
-  color: #F875AA;
-  opacity: 0.95;
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-}
-
-/* supporting paragraph under heading */
-.hero-section > p {
-  color: rgba(0,0,0,0.45);
-  font-size: 1.25rem;
-  max-width: 420px;
-  margin-top: 0.8rem;
-  margin-bottom: 2.5rem;
-}
-
-/* User type selection positioned on left bottom */
-.user-type-selection {
+.hero-img {
+  flex: 1;
+  padding: 0;
   display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  margin-top: 2.5rem;
-  justify-content: flex-start;
-  max-width: 520px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  background: #fff;
 }
 
-/* make cards more flat / pill-like like image buttons */
-.user-type-card {
+.hero-img img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #b2e1fa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 3rem;
+  z-index: 10;
+}
+
+.logo {
+  color: #ff70ac;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.nav-link, .nav-btn {
+  color: #ff70ac;
+  font-weight: bold;
+  font-size: 1rem;
   background: transparent;
   border: none;
-  padding: 0;
-  box-shadow: none;
-  border-radius: 999px;
-  min-width: 220px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 72px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 0 0.8rem;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* Guest button (light-blue background, pink text) */
-.guest-demo-btn,
-.user-type-card.guest .btn,
-.user-type-selection .guest {
-  background: #AEDEFC;
-  color: #F875AA;
-  border-radius: 999px;
-  padding: 18px 36px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  box-shadow: none;
-  border: 0;
+.nav-btn.log-in {
+  background: #fdeff3;
+  border: 1.5px solid #b2e1fa;
 }
 
-/* Photographer button (light-pink background, pink text — slightly darker bg) */
-.user-type-card.photographer .btn,
-.user-type-selection .photographer,
-.user-type-selection .photographer-btn {
-  background: #FFDFDF;
-  color: #F875AA;
-  border-radius: 999px;
-  padding: 18px 36px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  border: 0;
+.nav-btn.sign-up {
+  background: #ffdde7;
+  border: 1.5px solid #b2e1fa;
 }
 
-/* hover states */
-.guest-demo-btn:hover:not(:disabled),
-.user-type-card.photographer .btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+.user-type-flex {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
-/* keep any error / qr boxes above panel */
-.qr-info, .qr-scanning, .guest-error {
-  z-index: 3;
+.guest-btn, .photographer-btn {
+  font-size: 1.15rem;
+  padding: 1.2rem 2.5rem;
+  border-radius: 30px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255,112,172,0.09);
+  transition: background 0.3s, transform 0.2s;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .home-container::after { width: 62%; border-top-right-radius: 120px; border-bottom-right-radius: 120px; }
-  .hero-section { max-width: 60%; padding-left: 4rem; }
-  .hero-section h1 { font-size: 6rem; }
+.guest-btn {
+  background: #b2e1fa;
+  color: #ff70ac;
 }
 
-@media (max-width: 768px) {
-  /* on small screens stack and hide huge sizes */
-  .home-container::after { width: 100%; border-radius: 0 0 40% 40%; }
-  .hero-section { max-width: 100%; padding-left: 1.25rem; text-align: center; }
-  .hero-section h1 { font-size: 2.5rem; line-height: 1; color: #F875AA; }
-  .user-type-selection { justify-content: center; flex-direction: column; gap: 1rem; max-width: 320px; margin: 1.5rem auto 0; }
-  .guest-demo-btn, .user-type-card.photographer .btn { width: 100%; padding: 14px 18px; }
+.photographer-btn {
+  background: #ffdde7;
+  color: #ff70ac;
 }
+
+.hero-section h1 {
+  font-size: 5.5rem;
+  color: #ff70ac;
+  margin: 0;
+  text-align: left;
+  font-weight: 900;
+  line-height: 1.03;
+}
+
+.hero-section h2 {
+  color: #ff70ac;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 1.2rem;
+}
+
+@media (max-width: 900px) {
+  .home-container {
+    flex-direction: column;
+  }
+  .hero-img {
+    width: 100%;
+    min-height: 220px;
+    justify-content: center;
+  }
+  .hero-img img {
+    max-height: 300px;
+    object-fit: contain;
+  }
+  .hero-section h1 {
+    font-size: 3.7rem;
+  }
+}
+
+/* ฟังก์ชันเดิม ยังใช้ CSS อื่นๆ ได้ตามปกติ */
