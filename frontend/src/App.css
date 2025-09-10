@@ -1,152 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sorrim’s Website</title>
-  <style>
-    /* Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+/* รีเซ็ตเบื้องต้น */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
 
-    body {
-      background-color: #FFF6F6; /* ชมพูอ่อน */
-    }
+/* Header */
+header {
+  background-color: #AEDEFC; /* ฟ้าอ่อน */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+}
 
-    /* Header */
-    header {
-      background-color: #AEDEFC; /* ฟ้าอ่อน */
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 40px;
-    }
+header .logo {
+  color: #F875AA; /* ชมพู */
+  font-weight: bold;
+  font-size: 18px;
+}
 
-    header .logo {
-      color: #F875AA; /* ชมพู */
-      font-weight: bold;
-    }
+nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
 
-    header nav a {
-      margin: 0 15px;
-      text-decoration: none;
-      color: #F875AA;
-      font-weight: bold;
-    }
+nav a {
+  color: #F875AA; /* ชมพู */
+  text-decoration: none;
+  font-weight: bold;
+}
 
-    .auth-buttons {
-      display: flex;
-      gap: 10px;
-    }
+nav .btn {
+  border: 2px solid #F875AA;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-weight: bold;
+  background-color: transparent;
+  cursor: pointer;
+}
 
-    .auth-buttons button {
-      border: 2px solid #F875AA;
-      padding: 8px 18px;
-      border-radius: 20px;
-      background-color: transparent;
-      color: #F875AA;
-      cursor: pointer;
-      font-weight: bold;
-    }
+nav .btn.login {
+  background-color: #AEDEFC; /* ฟ้าอ่อน */
+  color: #F875AA;
+}
 
-    .auth-buttons .signup {
-      background-color: #FFDFDF;
-    }
+nav .btn.signup {
+  background-color: #FFDFDF; /* ชมพูอ่อน */
+  color: #F875AA;
+}
 
-    /* Main Section */
-    .main {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 60px 10%;
-    }
+/* Section หลัก */
+section {
+  background-color: #FFF6F6; /* ชมพูอ่อน */
+  padding: 80px 40px;
+  text-align: left;
+  height: calc(100vh - 70px);
+}
 
-    .text-box {
-      flex: 1;
-    }
+section .small-title {
+  font-size: 16px;
+  color: #F875AA; /* ชมพู */
+  margin-bottom: 10px;
+}
 
-    .text-box small {
-      color: #F875AA;
-      font-weight: bold;
-    }
+section h1 {
+  font-size: 60px;
+  color: #F875AA; /* ชมพูสด */
+  font-weight: 700;
+  margin: 0 0 40px;
+  line-height: 1.2;
+}
 
-    .text-box h1 {
-      color: #F875AA;
-      font-size: 80px;
-      font-weight: 700;
-      line-height: 1.1;
-      margin: 20px 0;
-    }
+.btn-group {
+  display: flex;
+  gap: 20px;
+}
 
-    .buttons {
-      margin-top: 20px;
-      display: flex;
-      gap: 15px;
-    }
+.btn-option {
+  border: none;
+  border-radius: 30px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
 
-    .buttons button {
-      border: none;
-      padding: 12px 24px;
-      border-radius: 25px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.btn-option:hover {
+  transform: scale(1.05);
+}
 
-    .guest {
-      background-color: #AEDEFC; /* ฟ้าอ่อน */
-      color: #F875AA;
-    }
+.btn-guest {
+  background-color: #AEDEFC; /* ฟ้าอ่อน */
+  color: #F875AA;
+}
 
-    .photographer {
-      background-color: #FFDFDF; /* ชมพูอ่อน */
-      color: #F875AA;
-    }
-
-    /* Image */
-    .image-box {
-      flex: 1;
-      text-align: right;
-    }
-
-    .image-box img {
-      max-width: 90%;
-      height: auto;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Header -->
-  <header>
-    <div class="logo">SORRIM’S WEBSITE</div>
-    <nav>
-      <a href="#">HOME</a>
-    </nav>
-    <div class="auth-buttons">
-      <button>LOG IN</button>
-      <button class="signup">SIGN UP</button>
-    </div>
-  </header>
-
-  <!-- Main Section -->
-  <section class="main">
-    <div class="text-box">
-      <small>SORRIM’S WEBSITE</small>
-      <h1>WHO<br>ARE YOU?</h1>
-      <div class="buttons">
-        <button class="guest">GUEST</button>
-        <button class="photographer">PHOTOGRAPHER</button>
-      </div>
-    </div>
-    <div class="image-box">
-      <img src="camera.jpg" alt="Camera">
-    </div>
-  </section>
-
-</body>
-</html>
+.btn-photographer {
+  background-color: #FFDFDF; /* ชมพูอ่อน */
+  color: #F875AA;
+}
